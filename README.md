@@ -2,7 +2,7 @@
 
 This project implements a clinical tabular classification pipeline for prostate cancer risk prediction using a diverse ensemble of machine learning models. The workflow is built around patient-level structured variables such as age, BMI, PSA-related biomarkers, family history, smoking status, and morphology-inspired measurements, then evaluates whether ensemble learning improves discrimination beyond strong single-model baselines.
 
-The project is designed to be useful for research assistant interviews and academic discussions because it emphasizes:
+The project is designed to be useful for research practises and academic discussions because it emphasizes:
 - clinically meaningful tabular preprocessing rather than generic toy data
 - interpretable and non-linear baseline models side by side
 - ensemble comparison through soft voting and stacking
@@ -22,7 +22,7 @@ Rather than treating this as a generic Kaggle exercise, the pipeline is structur
 - KNN adds diversity through local neighborhood structure
 - Soft Voting and Stacking test whether combining models improves robustness
 
-The current dataset contains:
+The current dataset from kaggle contains:
 - `2000` patient records
 - `18` original columns
 - `27` final model features after feature engineering
