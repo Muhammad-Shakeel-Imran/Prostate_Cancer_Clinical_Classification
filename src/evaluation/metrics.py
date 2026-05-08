@@ -32,18 +32,18 @@ class ModelEvaluator:
         specificity = tn / (tn + fp) if (tn + fp) else 0.0
 
         metrics = {
-            "accuracy": accuracy_score(y_true, y_pred),
-            "balanced_accuracy": balanced_accuracy_score(y_true, y_pred),
-            "precision": precision_score(y_true, y_pred, zero_division=0),
-            "recall": recall_score(y_true, y_pred, zero_division=0),
-            "specificity": specificity,
-            "f1": f1_score(y_true, y_pred, zero_division=0),
+            "accuracy": float(accuracy_score(y_true, y_pred)),
+            "balanced_accuracy": float(balanced_accuracy_score(y_true, y_pred)),
+            "precision": float(precision_score(y_true, y_pred, zero_division=0)),
+            "recall": float(recall_score(y_true, y_pred, zero_division=0)),
+            "specificity": float(specificity),
+            "f1": float(f1_score(y_true, y_pred, zero_division=0)),
         }
 
         if y_proba is not None:
-            metrics["roc_auc"] = roc_auc_score(y_true, y_proba)
-            metrics["average_precision"] = average_precision_score(y_true, y_proba)
-            metrics["brier_score"] = brier_score_loss(y_true, y_proba)
+            metrics["roc_auc"] = float(roc_auc_score(y_true, y_proba))
+            metrics["average_precision"] = float(average_precision_score(y_true, y_proba))
+            metrics["brier_score"] = float(brier_score_loss(y_true, y_proba))
 
         return metrics
 
