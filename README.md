@@ -144,6 +144,10 @@ conda env create -f environment.yml
 conda activate prostate-cancer
 ```
 
+## License
+
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for the full text.
+
 ## Usage
 
 ### Run the Main Training Pipeline
