@@ -40,9 +40,3 @@ def standardized_mean_differences(feature_frame: pd.DataFrame, target) -> pd.Dat
         key=lambda series: series.abs(),
         ascending=False,
     )
-
-
-def correlation_matrix(feature_frame: pd.DataFrame) -> pd.DataFrame:
-    """Compute a Pearson correlation matrix for the numeric variables."""
-    numeric = feature_frame.select_dtypes(include=[np.number])
-    return numeric.corr()

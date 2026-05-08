@@ -7,19 +7,6 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from src.models.base_model_trainer import BaseModelTrainer
-
-
-def run_cv_benchmark(
-    trainer: BaseModelTrainer,
-    X,
-    y,
-    cv_folds: int = 5,
-) -> pd.DataFrame:
-    """Run the project's standard cross-validation benchmark."""
-    return trainer.cross_validate_models(X, y, cv_folds=cv_folds)
-
-
 def save_cv_results(results: pd.DataFrame, save_path: str | Path) -> None:
     """Persist the cross-validation table to disk."""
     output_path = Path(save_path)

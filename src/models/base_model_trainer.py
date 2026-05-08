@@ -155,13 +155,3 @@ class BaseModelTrainer:
             model_path = output_dir / f"{model_name}_model.pkl"
             joblib.dump(model, model_path)
             logger.info("Saved %s model to %s", model_name, model_path)
-
-    def load_models(self, save_dir: str | Path) -> Dict[str, Pipeline]:
-        """Load fitted base models from disk."""
-        output_dir = Path(save_dir)
-        self.trained_models = {}
-        for model_path in sorted(output_dir.glob("*_model.pkl")):
-            model_name = model_path.stem.replace("_model", "")
-            self.trained_models[model_name] = joblib.load(model_path)
-            logger.info("Loaded %s model from %s", model_name, model_path)
-        return self.trained_models
