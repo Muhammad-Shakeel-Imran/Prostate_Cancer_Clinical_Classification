@@ -71,7 +71,7 @@ This project demonstrates:
 ## Installation
 
 ### Prerequisites
-- Python 3.8+
+- Python 3.11+
 - pip or conda
 
 ### Setup
@@ -90,7 +90,13 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 
 3. **Install dependencies**
 ```bash
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
+```
+
+Or create the bundled conda environment:
+```bash
+conda env create -f environment.yml
+conda activate prostate-cancer-ensemble
 ```
 
 ## Usage

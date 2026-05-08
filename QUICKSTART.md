@@ -2,7 +2,13 @@
 
 ## 1. Install Dependencies
 ```bash
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
+```
+
+Or with conda:
+```bash
+conda env create -f environment.yml
+conda activate prostate-cancer-ensemble
 ```
 
 ## 2. Run Training Pipeline

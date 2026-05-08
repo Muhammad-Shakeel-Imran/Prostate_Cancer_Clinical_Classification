@@ -1,0 +1,17 @@
+name: prostate-cancer-ensemble
+channels:
+  - conda-forge
+dependencies:
+  - python=3.13
+  - pip
+  - numpy>=2.1,<3
+  - pandas>=2.2,<3.1
+  - scikit-learn>=1.7,<1.9
+  - xgboost>=3.0,<4
+  - pyyaml>=6.0.2,<7
+  - matplotlib>=3.9,<3.11
+  - joblib>=1.4,<2
+  - openpyxl>=3.1.5,<4
+  - pip:
+      - lightgbm>=4.6,<5
+      - seaborn>=0.13.2,<0.14
