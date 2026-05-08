@@ -170,6 +170,10 @@ def main():
         "voting_ensemble": voting_ensemble,
         "stacking_ensemble": stacking_ensemble,
         "results": export_df,
+        "cv_results": cv_results,
+        "X_test": X_test,
+        "y_test": y_test,
+        "dataset_bundle": dataset_bundle,
     }
 
 

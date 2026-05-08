@@ -9,6 +9,10 @@ def setup_logger(name, log_file=None):
     """Setup logger configuration."""
     logger = logging.getLogger(name)
     logger.setLevel(logging.INFO)
+    logger.propagate = False
+
+    if logger.handlers:
+        return logger
     
     formatter = logging.Formatter(
         '%(asctime)s - %(name)s - %(levelname)s - %(message)s'

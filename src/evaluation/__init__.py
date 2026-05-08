@@ -1,1 +1,1 @@
-"""Package initialization."""
+"""Evaluation utilities for benchmarking ensemble models."""

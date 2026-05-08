@@ -1,1 +1,1 @@
-"""Package initialization."""
+"""General helpers used across the codebase."""
