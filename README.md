@@ -1,12 +1,25 @@
 # Prostate Cancer Clinical Classification Model
 
-This project implements a clinical tabular classification pipeline for prostate cancer risk prediction using a diverse ensemble of machine learning models. The workflow is built around patient-level structured variables such as age, BMI, PSA-related biomarkers, family history, smoking status, and morphology-inspired measurements, then evaluates whether ensemble learning improves discrimination beyond strong single-model baselines.
+This repository contains a research-oriented and clinically focused machine learning framework for prostate cancer risk prediction using structured biomedical data. The pipeline combines clinical variables, biomarker measurements, and morphology-inspired features in a modular ensemble workflow that is designed to feel closer to a biomedical AI prototype than a one-off notebook experiment.
 
-The project is designed to be useful for research practises and academic discussions because it emphasizes:
-- clinically meaningful tabular preprocessing rather than generic toy data
-- interpretable and non-linear baseline models side by side
-- ensemble comparison through soft voting and stacking
-- clear held-out evaluation with saved figures and artifacts
+The project is especially useful for research presentations, interview discussions, and academic review because it emphasizes:
+- clinically meaningful tabular preprocessing instead of toy examples
+- interpretable and non-linear models side by side
+- ensemble learning through soft voting and stacked generalization
+- reproducible evaluation with saved artifacts, figures, and summary reports
+- explainability, uncertainty analysis, and clinical-style interpretation outputs
+
+## Project Overview
+
+This project was built as a clinical decision-support style prototype for accurate and interpretable prostate cancer prediction. It uses a biomedical tabular dataset to benchmark diverse learning strategies, compare single-model and ensemble performance, and surface clinically meaningful insights from model outputs.
+
+Implemented strengths of the current codebase include:
+- stratified cross-validation for stable model comparison
+- class-weight-aware learners for more robust handling of class imbalance
+- domain-inspired biomedical feature engineering
+- soft voting and stacked generalization for predictive robustness
+- optional SHAP and LIME-style explainability with safe fallbacks
+- uncertainty analysis and clinical narrative generation for high-risk cases
 
 ## Clinical Framing
 
@@ -22,10 +35,19 @@ Rather than treating this as a generic Kaggle exercise, the pipeline is structur
 - KNN adds diversity through local neighborhood structure
 - Soft Voting and Stacking test whether combining models improves robustness
 
-The current dataset from kaggle contains:
+## Dataset Context
+
+The training data used in this project comes from a Kaggle prostate cancer dataset stored locally as `data/raw/Prostate_Cancer.xlsx`. The dataset contains patient-level biomedical information spanning:
+- demographic and clinical variables such as age, BMI, family history, and smoking status
+- biomarker measurements such as PSA, free PSA ratio, testosterone, and alkaline phosphatase
+- morphology-inspired descriptors such as radius, texture, perimeter, area, smoothness, compactness, symmetry, and fractal dimension
+
+The current dataset snapshot contains:
 - `2000` patient records
 - `18` original columns
 - `27` final model features after feature engineering
+
+Within this repository, the dataset is reframed as a structured biomedical benchmark for malignancy prediction rather than a simple leaderboard exercise.
 
 ## Modeling Approach
 
@@ -57,6 +79,25 @@ In addition to the original clinical variables, the pipeline constructs derived 
 - `shape_risk_index`
 
 These are intentionally lightweight and interpretable so the model remains explainable in a clinical research setting.
+
+### Analysis and Explainability
+
+Beyond model training, the repository includes:
+- stratified 5-fold cross-validation for comparative benchmarking
+- held-out evaluation with ROC, precision-recall, calibration, and confusion-matrix outputs
+- native and permutation feature importance summaries
+- optional SHAP-based global explanations and LIME-inspired local explanations
+- uncertainty estimation through predictive entropy, confidence margin, and ensemble disagreement
+- clinical-style narratives highlighting intuitive risk flags such as elevated PSA or older age
+
+### Extension-Ready Enhancements
+
+The architecture is also well positioned for future upgrades often expected in biomedical ML workflows, including:
+- Optuna-based Bayesian hyperparameter optimization
+- SMOTE-based imbalance handling pipelines
+- deployment as an interactive Streamlit application for real-time risk scoring and interpretation
+
+These extensions are not fully wired into the default training pipeline yet, but the current modular structure was intentionally designed to support them cleanly.
 
 ## Latest Model Performance
 
@@ -137,6 +178,14 @@ This is a useful research finding in itself: for this dataset, a strong linear b
 python -m pip install -r requirements.txt
 ```
 
+### Optional Explainability Dependencies
+
+To enable SHAP and LIME-based explanation workflows:
+
+```bash
+python -m pip install shap lime
+```
+
 ### Install with conda
 
 ```bash
@@ -147,6 +196,14 @@ conda activate prostate-cancer
 ## License
 
 This project is licensed under the MIT License. See [LICENSE](LICENSE) for the full text.
+
+## Supporting Documentation
+
+Additional project notes are available in:
+- [Methodology](docs/methodology.md)
+- [Clinical Relevance](docs/clinical_relevance.md)
+- [Architecture](docs/architecture.md)
+- [Deployment Guide](docs/deployment_guide.md)
 
 ## Usage
 
