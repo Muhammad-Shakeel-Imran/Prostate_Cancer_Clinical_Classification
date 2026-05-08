@@ -5,15 +5,23 @@ from __future__ import annotations
 import json
 import logging
 import sys
+import warnings
 from pathlib import Path
 
 import pandas as pd
 
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    format="%(message)s",
+    force=True,
 )
 logger = logging.getLogger(__name__)
+
+warnings.filterwarnings(
+    "ignore",
+    category=FutureWarning,
+    module=r"sklearn\..*",
+)
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(PROJECT_ROOT))
@@ -25,6 +33,16 @@ from src.ensemble.voting_ensemble import VotingEnsemble
 from src.evaluation.cross_validation import plot_cv_results, save_cv_results
 from src.evaluation.metrics import ModelEvaluator
 from src.models.base_model_trainer import BaseModelTrainer
+
+
+QUIET_LOGGERS = [
+    "src.data.data_loader",
+    "src.models.base_model_trainer",
+    "src.ensemble.voting_ensemble",
+    "src.ensemble.stacking_ensemble",
+    "src.evaluation.metrics",
+    "matplotlib",
+]
 
 
 def _ensure_output_directories(paths_config):
@@ -41,6 +59,12 @@ def _ensure_output_directories(paths_config):
         Path(directory).mkdir(parents=True, exist_ok=True)
 
 
+def _configure_terminal_logging() -> None:
+    """Keep the terminal focused on the top-level pipeline messages."""
+    for logger_name in QUIET_LOGGERS:
+        logging.getLogger(logger_name).setLevel(logging.WARNING)
+
+
 def _save_processed_snapshot(feature_frame, target, output_path: str | Path) -> None:
     snapshot = feature_frame.copy()
     snapshot["target"] = target.values
@@ -52,6 +76,19 @@ def _save_training_summary(summary, output_path: str | Path) -> None:
     Path(output_path).parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, "w", encoding="utf-8") as handle:
         json.dump(summary, handle, indent=2, default=str)
+
+
+def _log_section(title: str) -> None:
+    """Print a clean, readable section header."""
+    border = "=" * len(title)
+    logger.info("\n%s\n%s\n%s", border, title, border)
+
+
+def _format_metric_table(frame: pd.DataFrame, columns: list[str]) -> str:
+    """Render a compact metric table for terminal output."""
+    visible_columns = [column for column in columns if column in frame.columns]
+    display_frame = frame[visible_columns].copy()
+    return display_frame.round(4).to_string()
 
 
 def _save_evaluation_outputs(
@@ -108,16 +145,15 @@ def _save_evaluation_outputs(
 
 def main():
     """Execute the end-to-end training workflow."""
-    logger.info("=" * 80)
-    logger.info("PROSTATE CANCER CLINICAL CLASSIFICATION - ENSEMBLE PIPELINE")
-    logger.info("=" * 80)
+    _configure_terminal_logging()
+    _log_section("PROSTATE CANCER CLINICAL CLASSIFICATION - ENSEMBLE PIPELINE")
 
     config = load_config("configs/config.yaml")
     model_config = load_config("configs/model_config.yaml")
     paths_config = load_config("configs/paths.yaml")
     _ensure_output_directories(paths_config)
 
-    logger.info("Loading and preparing the prostate cancer dataset...")
+    logger.info("Loading and preparing dataset...")
     dataset_bundle = load_and_prepare_training_data(paths_config["data"]["raw_data"])
     _save_processed_snapshot(
         dataset_bundle.feature_frame,
@@ -131,10 +167,18 @@ def main():
         test_size=config["test_size"],
         random_state=config["random_seed"],
     )
+    logger.info(
+        "Dataset ready: %s rows, %s engineered features, train=%s, test=%s",
+        dataset_bundle.summary["n_rows"],
+        dataset_bundle.feature_frame.shape[1],
+        X_train.shape[0],
+        X_test.shape[0],
+    )
 
     trainer = BaseModelTrainer(model_config=model_config, random_state=config["random_seed"])
 
-    logger.info("Running cross-validation on the base model pool...")
+    _log_section("Cross-Validation")
+    logger.info("Benchmarking base learners with %s-fold CV...", model_config["training"]["cv_folds"])
     cv_results = trainer.cross_validate_models(
         X_train,
         y_train,
@@ -146,8 +190,16 @@ def main():
         metric="roc_auc_mean",
         save_path=Path(paths_config["reports"]["figures"]) / "cross_validation_ranking.png",
     )
+    logger.info(
+        "\n%s",
+        _format_metric_table(
+            cv_results,
+            ["roc_auc_mean", "f1_mean", "accuracy_mean", "precision_mean", "recall_mean"],
+        ),
+    )
 
-    logger.info("Training the final base models on the full training split...")
+    _log_section("Final Model Training")
+    logger.info("Fitting enabled base models on the full training split...")
     base_models = trainer.train_all_models(X_train, y_train)
     trainer.save_models(paths_config["models"]["base_models"])
 
@@ -157,7 +209,8 @@ def main():
     prediction_map = {}
     probability_map = {}
 
-    logger.info("Evaluating individual base learners on the held-out test split...")
+    _log_section("Held-Out Test Evaluation")
+    logger.info("Scoring base learners and ensembles on the test split...")
     for model_name, model in base_models.items():
         y_proba = model.predict_proba(X_test)[:, 1]
         y_pred = (y_proba >= decision_threshold).astype(int)
@@ -165,9 +218,8 @@ def main():
         test_results[model_name] = metrics
         prediction_map[model_name] = y_pred
         probability_map[model_name] = y_proba
-        evaluator.print_metrics(metrics, model_name)
 
-    logger.info("Building performance-weighted soft voting ensemble...")
+    logger.info("Building soft voting ensemble...")
     voting_weights = VotingEnsemble.derive_weights(
         cv_results=cv_results,
         metric=model_config["ensemble"]["voting"]["weight_metric"],
@@ -181,7 +233,6 @@ def main():
     prediction_map["soft_voting"] = voting_pred
     probability_map["soft_voting"] = voting_proba
     voting_ensemble.save(paths_config["artifacts"]["voting_model"])
-    evaluator.print_metrics(voting_metrics, "Soft Voting Ensemble")
 
     logger.info("Building stacking ensemble...")
     stacking_config = model_config["ensemble"]["stacking"]
@@ -201,9 +252,20 @@ def main():
     prediction_map["stacking"] = stacking_pred
     probability_map["stacking"] = stacking_proba
     stacking_ensemble.save(paths_config["artifacts"]["stacking_model"])
-    evaluator.print_metrics(stacking_metrics, "Stacking Ensemble")
 
-    logger.info("Compiling final comparison report...")
+    comparison_df_for_terminal = (
+        pd.DataFrame.from_dict(test_results, orient="index")
+        .sort_values(by="roc_auc", ascending=False)
+    )
+    logger.info(
+        "\n%s",
+        _format_metric_table(
+            comparison_df_for_terminal,
+            ["roc_auc", "f1", "accuracy", "balanced_accuracy", "precision", "recall", "specificity"],
+        ),
+    )
+
+    _log_section("Saving Results")
     comparison_df = evaluator.compare_models(
         test_results,
         save_path=Path(paths_config["reports"]["figures"]) / "model_comparison.png",
@@ -211,7 +273,6 @@ def main():
     export_df = comparison_df.join(cv_results, how="left")
     results_path = Path(paths_config["reports"]["results"]) / "model_results.csv"
     export_df.to_csv(results_path)
-    logger.info("Saved model comparison table to %s", results_path)
     _save_evaluation_outputs(
         evaluator=evaluator,
         X_test=X_test,
@@ -243,9 +304,11 @@ def main():
     }
     _save_training_summary(summary, paths_config["artifacts"]["training_summary"])
 
-    logger.info("=" * 80)
-    logger.info("TRAINING PIPELINE COMPLETED SUCCESSFULLY")
-    logger.info("=" * 80)
+    logger.info("Saved metrics table: %s", results_path)
+    logger.info("Saved figures: %s", paths_config["reports"]["figures"])
+    logger.info("Saved tables: %s", paths_config["reports"]["tables"])
+    logger.info("Saved predictions: %s", paths_config["reports"]["predictions"])
+    _log_section("TRAINING PIPELINE COMPLETED SUCCESSFULLY")
 
     return {
         "base_models": base_models,
