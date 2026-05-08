@@ -43,15 +43,18 @@ coverage.xml
 data/raw/
 data/processed/
 data/interim/
-*.csv
 !configs/
 !*.gitkeep
 
 # Model files
 models/trained_models/*
 models/ensemble_models/*
+models/checkpoints/*
+models/serialized/*
 !models/trained_models/.gitkeep
 !models/ensemble_models/.gitkeep
+!models/checkpoints/.gitkeep
+!models/serialized/.gitkeep
 
 # IDE
 .vscode/
@@ -65,11 +68,13 @@ models/ensemble_models/*
 *.log
 logs/
 
-# Reports and outputs
-reports/figures/*
-reports/tables/*
-reports/*
-!reports/.gitkeep
+# Generated reports and outputs
+results/
+reports/
+reports/figures/
+reports/tables/
+reports/model_results.csv
+reports/training_summary.json
 
 # Experiments
 experiments/*
