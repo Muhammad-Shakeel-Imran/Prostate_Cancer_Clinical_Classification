@@ -48,13 +48,4 @@ predictions, probabilities = pipeline.predict(X_new, method='stacking')
 - Uses cross-validation for robust meta-feature generation
 - Generally better performance
 
-## Project Features
-
-✅ Diverse tabular base learners including Logistic Regression, RF, XGBoost, SVM, and KNN
-✅ Weighted Voting & Stacking Ensembles
-✅ Comprehensive Evaluation Metrics
-✅ Modular & Extensible Code
-✅ Configuration-Driven Setup
-✅ Real Excel-Based Clinical Classification Focus
-
 See README.md for complete documentation.
