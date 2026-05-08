@@ -1,0 +1,22 @@
+data:
+  raw_data: "data/raw/Prostate_Cancer.xlsx"
+  processed_data: "data/processed/prostate_cancer_processed.csv"
+  interim_data: "data/interim/"
+
+models:
+  base_models: "models/trained_models"
+  ensemble_models: "models/ensemble_models"
+  checkpoints: "models/checkpoints"
+
+reports:
+  figures: "reports/figures"
+  tables: "reports/tables"
+  results: "reports"
+
+experiments:
+  tracking: "experiments/experiment_tracking.csv"
+
+artifacts:
+  training_summary: "reports/training_summary.json"
+  voting_model: "models/ensemble_models/soft_voting_ensemble.pkl"
+  stacking_model: "models/ensemble_models/stacking_ensemble.pkl"
