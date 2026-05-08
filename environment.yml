@@ -1,4 +1,4 @@
-name: prostate-cancer-ensemble
+name: prostate-cancer
 channels:
   - conda-forge
 dependencies:

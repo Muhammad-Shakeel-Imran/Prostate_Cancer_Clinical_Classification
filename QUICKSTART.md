@@ -19,9 +19,9 @@ python main.py
 ## 3. Expected Output
 - Trained base models in `models/trained_models/`
 - Soft voting and stacking artifacts in `models/ensemble_models/`
-- Results saved to `reports/model_results.csv`
-- Performance plots in `reports/figures/`
-- Training summary in `reports/training_summary.json`
+- Results saved to `results/model_results.csv`
+- Performance plots in `results/figures/`
+- Training summary in `results/training_summary.json`
 
 ## 4. Use Trained Models
 

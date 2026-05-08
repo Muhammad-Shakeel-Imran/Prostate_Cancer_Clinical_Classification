@@ -1,291 +1,233 @@
-# Prostate Cancer Clinical Classification - Ensemble Model
+# Prostate Cancer Clinical Classification Model
 
-A machine learning ensemble-based system for clinical classification and risk assessment of prostate cancer using multiple base learners and ensemble methods.
+This project implements a clinical tabular classification pipeline for prostate cancer risk prediction using a diverse ensemble of machine learning models. The workflow is built around patient-level structured variables such as age, BMI, PSA-related biomarkers, family history, smoking status, and morphology-inspired measurements, then evaluates whether ensemble learning improves discrimination beyond strong single-model baselines.
 
-## Project Overview
+The project is designed to be useful for research assistant interviews and academic discussions because it emphasizes:
+- clinically meaningful tabular preprocessing rather than generic toy data
+- interpretable and non-linear baseline models side by side
+- ensemble comparison through soft voting and stacking
+- clear held-out evaluation with saved figures and artifacts
 
-This project demonstrates:
-- **Multiple Base Learners**: Logistic Regression, Random Forest, XGBoost, SVM, KNN, and optional LightGBM
-- **Ensemble Methods**: Performance-weighted soft voting and stacking
-- **Clinical Classification**: Binary classification for prostate cancer risk (low-risk vs high-risk)
-- **Clinical Tabular Pipeline**: Excel ingestion, validation, preprocessing, and interpretable feature engineering
-- **Comprehensive Evaluation**: ROC-AUC, Balanced Accuracy, Precision, Recall, Specificity, F1, and calibration-aware scoring
+## Clinical Framing
 
-## Project Structure
+The task is binary clinical classification:
+- `B`: benign / lower-risk pattern
+- `M`: malignant / higher-risk pattern
 
-```
-├── configs/                          # Configuration files
-│   ├── config.yaml                  # General project settings
-│   ├── model_config.yaml            # Model hyperparameters
-│   ├── training_config.yaml         # Training settings
-│   └── paths.yaml                   # Data and output paths
-│
-├── data/                            # Data directory
-│   ├── raw/                         # Raw input data
-│   ├── processed/                   # Processed data
-│   └── interim/                     # Intermediate data
-│
-├── src/                             # Source code
-│   ├── data/
-│   │   ├── data_loader.py          # Data loading and preprocessing
-│   │   └── __init__.py
-│   │
-│   ├── models/
-│   │   ├── base_model_trainer.py   # Training for individual models
-│   │   └── __init__.py
-│   │
-│   ├── ensemble/
-│   │   ├── voting_ensemble.py      # Voting ensemble implementation
-│   │   ├── stacking_ensemble.py    # Stacking ensemble implementation
-│   │   └── __init__.py
-│   │
-│   ├── evaluation/
-│   │   ├── metrics.py              # Evaluation metrics and visualization
-│   │   └── __init__.py
-│   │
-│   ├── pipelines/
-│   │   ├── training_pipeline.py    # Full training pipeline
-│   │   ├── inference_pipeline.py   # Inference on new data
-│   │   └── __init__.py
-│   │
-│   └── utils/
-│       ├── logger.py               # Logging utilities
-│       └── __init__.py
-│
-├── models/                          # Trained model storage
-│   ├── trained_models/             # Base model files
-│   └── ensemble_models/            # Ensemble meta-learners
-│
-├── reports/                         # Reports and visualizations
-│   ├── figures/                    # Generated plots
-│   ├── tables/                     # Results tables
-│   └── model_results.csv           # Results
-│
-├── notebooks/                       # Jupyter notebooks
-├── tests/                          # Test files
-├── requirements.txt                # Python dependencies
-├── setup.py                        # Package setup
-└── README.md                       # This file
+Rather than treating this as a generic Kaggle exercise, the pipeline is structured as a clinical decision-support style benchmark:
+- Logistic Regression serves as an interpretable linear baseline
+- Random Forest captures non-linear interactions and reduces variance
+- XGBoost models more complex feature interactions
+- SVM provides an alternative margin-based decision boundary
+- KNN adds diversity through local neighborhood structure
+- Soft Voting and Stacking test whether combining models improves robustness
+
+The current dataset contains:
+- `2000` patient records
+- `18` original columns
+- `27` final model features after feature engineering
+
+## Modeling Approach
+
+### Base Models
+- Logistic Regression
+- Random Forest
+- XGBoost
+- SVM with RBF kernel
+- KNN
+- Optional LightGBM support is included in configuration
+
+### Ensemble Models
+- **Soft Voting**: weighted probability averaging using cross-validated model quality
+- **Stacking**: out-of-fold base-model probabilities used as meta-features for a Logistic Regression meta-learner, with optional passthrough features
+
+### Feature Engineering
+
+In addition to the original clinical variables, the pipeline constructs derived features such as:
+- `log_psa`
+- `log_alkaline_phosphatase`
+- `psa_age_ratio`
+- `psa_bmi_interaction`
+- `psa_to_testosterone_ratio`
+- `free_to_total_psa_index`
+- `alkaline_phosphatase_to_psa_ratio`
+- `area_perimeter_ratio`
+- `texture_radius_ratio`
+- `compactness_symmetry_interaction`
+- `shape_risk_index`
+
+These are intentionally lightweight and interpretable so the model remains explainable in a clinical research setting.
+
+## Latest Model Performance
+
+The following held-out test results were produced by the current pipeline on the included dataset:
+
+| Model | ROC-AUC | F1 | Accuracy | Balanced Accuracy | Precision | Recall | Specificity |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| Logistic Regression | 0.7408 | 0.7218 | 0.7225 | 0.7226 | 0.7310 | 0.7129 | 0.7323 |
+| Stacking Ensemble | 0.7394 | 0.7200 | 0.7200 | 0.7201 | 0.7273 | 0.7129 | 0.7273 |
+| Random Forest | 0.7380 | 0.7103 | 0.7125 | 0.7126 | 0.7231 | 0.6980 | 0.7273 |
+| Soft Voting Ensemble | 0.7261 | 0.7168 | 0.7175 | 0.7176 | 0.7259 | 0.7079 | 0.7273 |
+| SVM | 0.7171 | 0.7186 | 0.7200 | 0.7201 | 0.7296 | 0.7079 | 0.7323 |
+| XGBoost | 0.7150 | 0.6751 | 0.6800 | 0.6802 | 0.6927 | 0.6584 | 0.7020 |
+| KNN | 0.6831 | 0.6888 | 0.6725 | 0.6720 | 0.6621 | 0.7178 | 0.6263 |
+
+### Interpretation of Results
+
+- Logistic Regression is currently the strongest single model on held-out ROC-AUC.
+- Stacking performs almost identically to Logistic Regression and provides a strong ensemble baseline.
+- Random Forest remains competitive and is a useful non-linear complement.
+- Soft Voting underperforms the top single model because weaker but correlated models dilute the strongest probability signal.
+
+This is a useful research finding in itself: for this dataset, a strong linear baseline remains hard to beat, and not every ensemble strategy improves ranking performance.
+
+## Cross-Validation Summary
+
+5-fold cross-validation on the training split produced the following mean metrics:
+
+| Model | ROC-AUC Mean | F1 Mean | Accuracy Mean | Precision Mean | Recall Mean |
+|---|---:|---:|---:|---:|---:|
+| Logistic Regression | 0.6888 | 0.6902 | 0.6912 | 0.6980 | 0.6827 |
+| Random Forest | 0.6851 | 0.6878 | 0.6856 | 0.6883 | 0.6876 |
+| KNN | 0.6836 | 0.6744 | 0.6656 | 0.6627 | 0.6865 |
+| SVM | 0.6828 | 0.6936 | 0.6944 | 0.7011 | 0.6864 |
+| XGBoost | 0.6630 | 0.6536 | 0.6506 | 0.6535 | 0.6542 |
+
+## Repository Structure
+
+```text
+├── configs/                    # Model, path, and training configuration
+├── data/
+│   ├── raw/                    # Input data (Excel dataset)
+│   ├── processed/              # Saved processed feature snapshot
+│   └── interim/                # Optional intermediate artifacts
+├── models/
+│   ├── trained_models/         # Saved base learners
+│   └── ensemble_models/        # Saved voting and stacking ensembles
+├── results/
+│   ├── figures/                # ROC, PR, calibration, confusion matrices, comparisons
+│   ├── tables/                 # CV results and analysis tables
+│   ├── predictions/            # Saved test-set predictions
+│   ├── model_results.csv       # Final metrics table
+│   └── training_summary.json   # Run summary and metadata
+├── src/
+│   ├── data/                   # Loading, validation, preprocessing, feature engineering
+│   ├── models/                 # Base-model training and tuning utilities
+│   ├── ensemble/               # Voting and stacking implementations
+│   ├── evaluation/             # Metrics, ROC analysis, significance testing
+│   ├── explainability/         # Feature importance and uncertainty helpers
+│   ├── features/               # Feature selection and statistical summaries
+│   ├── pipelines/              # Training, inference, and full analysis pipelines
+│   └── utils/                  # Helpers for logging, saving, plotting, etc.
+├── main.py
+├── requirements.txt
+├── environment.yml
+└── README.md
 ```
 
 ## Installation
 
-### Prerequisites
+### Requirements
 - Python 3.11+
-- pip or conda
+- `pip` or `conda`
 
-### Setup
+### Install with pip
 
-1. **Clone the repository**
-```bash
-git clone <repository-url>
-cd prostate-cancer-ensemble-platform
-```
-
-2. **Create a virtual environment (recommended)**
-```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
-
-3. **Install dependencies**
 ```bash
 python -m pip install -r requirements.txt
 ```
 
-Or create the bundled conda environment:
+### Install with conda
+
 ```bash
 conda env create -f environment.yml
-conda activate prostate-cancer-ensemble
+conda activate prostate-cancer
 ```
 
 ## Usage
 
-### 1. Run the Full Training Pipeline
-
-Execute the complete training workflow (data loading → model training → ensemble building → evaluation):
+### Run the Main Training Pipeline
 
 ```bash
 python src/pipelines/training_pipeline.py
 ```
 
 This will:
-- Load the prostate cancer Excel dataset from `data/raw/Prostate_Cancer.xlsx`
-- Validate schema and engineer clinically meaningful tabular features
-- Train diverse base learners such as Logistic Regression, Random Forest, XGBoost, SVM, and KNN
-- Build a performance-weighted soft voting ensemble
-- Build a stacking ensemble with a Logistic Regression meta-learner
-- Evaluate all models
-- Save trained models, ensemble artifacts, feature snapshots, and comparison reports
+- load the Excel dataset from `data/raw/Prostate_Cancer.xlsx`
+- validate the schema
+- build engineered clinical features
+- run 5-fold cross-validation
+- train all enabled base models
+- train soft voting and stacking ensembles
+- evaluate on a held-out test split
+- save models and results to `models/` and `results/`
 
-### 2. Make Predictions on New Data
+### Run the Extended Analysis Pipeline
 
-Use the trained models for inference:
+```bash
+python -m src.pipelines.full_pipeline
+```
+
+This additionally generates:
+- ROC analysis summaries
+- feature importance tables
+- uncertainty analysis
+- pairwise model significance tables
+- example clinical interpretation output
+
+### Run a Single Base Model
+
+```bash
+python -m src.models.train_logistic_regression
+python -m src.models.train_random_forest
+python -m src.models.train_xgboost
+python -m src.models.train_svm
+python -m src.models.train_knn
+```
+
+### Inference on New Patient Data
 
 ```python
 from src.pipelines.inference_pipeline import InferencePipeline
 import pandas as pd
 
-# Initialize pipeline
-pipeline = InferencePipeline('models')
+pipeline = InferencePipeline("models")
 pipeline.load_models()
 
-# Load your new data with the same clinical columns as the training file
-X_new = pd.read_excel('data/new_patients.xlsx')
-
-# Make predictions using voting ensemble
-voting_pred, voting_proba = pipeline.predict(X_new, method='voting')
-
-# Make predictions using stacking ensemble
-stacking_pred, stacking_proba = pipeline.predict(X_new, method='stacking')
-
-print(f"Voting predictions: {voting_pred}")
-print(f"Stacking predictions: {stacking_pred}")
+X_new = pd.read_excel("data/new_patients.xlsx")
+predictions, probabilities = pipeline.predict(X_new, method="stacking")
 ```
 
-### 3. Custom Data
+## Expected Input Columns
 
-To use your own clinical data:
+Training data should contain:
 
-1. Place your Excel or CSV file in `data/raw/`
-2. Update `configs/paths.yaml` if needed
-3. Run the training pipeline
-
-Expected training columns:
-```
+```text
 id,age,BMI,PSA_level,free_PSA_ratio,testosterone_level,alkaline_phosphatase,family_history,smoking_status,radius,texture,perimeter,area,smoothness,compactness,symmetry,fractal_dimension,diagnosis_result
 ```
 
-## Configuration
+## Saved Outputs
 
-### Model Hyperparameters (`configs/model_config.yaml`)
+After training, the project stores:
 
-Customize model parameters:
-```yaml
-models:
-  logistic_regression:
-    enabled: true
+- base models in `models/trained_models/`
+- ensemble models in `models/ensemble_models/`
+- metrics in `results/model_results.csv`
+- evaluation figures in `results/figures/`
+- cross-validation tables in `results/tables/`
+- test-set predictions in `results/predictions/`
+- run metadata in `results/training_summary.json`
 
-  xgboost:
-    enabled: true
-    n_estimators: 300
-    learning_rate: 0.05
+## Clinical Disclaimer
 
-ensemble:
-  voting:
-    weight_metric: "roc_auc"
-    weight_power: 4.0
-```
-
-### Ensemble Configuration
-
-**Voting Ensemble**:
-- Uses soft voting on predicted probabilities
-- Learns weights from cross-validated base-model ROC-AUC
-
-**Stacking Ensemble**:
-- Uses 5-fold cross-validation to build robust meta-features
-- Logistic Regression meta-learner with optional passthrough of original features
-
-## Ensemble Methods
-
-### Voting Ensemble
-Weighted average of predicted probabilities from all base models:
-```
-P(class=1) = w₁P₁ + w₂P₂ + ... + wₙPₙ
-```
-
-### Stacking Ensemble
-Two-level approach:
-1. Base models generate predictions (meta-features)
-2. Meta-learner (Logistic Regression) learns optimal combination
-
-## Results
-
-Models are evaluated using:
-- **Accuracy**: Overall correctness
-- **Balanced Accuracy**: Robustness under class imbalance
-- **Precision**: Positive prediction accuracy
-- **Recall**: True positive rate
-- **Specificity**: True negative rate
-- **F1-Score**: Harmonic mean of precision and recall
-- **ROC-AUC**: Area under the Receiver Operating Characteristic curve
-
-Results are saved to `reports/model_results.csv` and visualized in `reports/figures/`
-
-## Model Files
-
-- **Base Models**: `models/trained_models/{model_name}_model.pkl`
-- **Soft Voting Ensemble**: `models/ensemble_models/soft_voting_ensemble.pkl`
-- **Stacking Ensemble**: `models/ensemble_models/stacking_ensemble.pkl`
-
-## Development
-
-### Running Tests
-
-```bash
-python -m pytest tests/
-```
-
-### Adding New Models
-
-To add a new base learner:
-1. Add training method to `src/models/base_model_trainer.py`
-2. Call it from `train_all_models()`
-3. Update config with hyperparameters
-
-## Key Features
-
-✅ Multiple diverse base learners for tabular medical data
-✅ Two ensemble methods (performance-weighted Voting + Stacking)
-✅ Comprehensive evaluation metrics
-✅ Model persistence and loading
-✅ Configuration-driven setup
-✅ Real Excel-based clinical pipeline
-✅ Reproducible results (seed management)
-✅ Modular and extensible architecture
-
-## Performance Notes
-
-- Training time: ~5-10 minutes (depends on data size)
-- Designed around the included Kaggle-style prostate cancer Excel dataset
-- Use external validation before any real clinical deployment
-- Stacking ensemble typically performs better than voting
-
-## Clinical Relevance
-
-This model framework is designed for:
-- **Risk Stratification**: Identifying high-risk prostate cancer patients
-- **Treatment Planning**: Supporting clinical decision-making
-- **Research**: Ensemble method comparison in medical ML
-
-**⚠️ Medical Disclaimer**: This is a demonstration model. Any clinical application requires validation, regulatory approval, and integration with clinical workflows.
+This repository is for machine learning research and educational demonstration. It is **not** a validated clinical diagnostic system. Any real-world clinical use would require:
+- external validation
+- prospective study design
+- regulatory review
+- clinician oversight
 
 ## References
 
-- XGBoost: Chen & Guestrin (2016)
-- LightGBM: Ke et al. (2017)
-- Ensemble Methods: Zhou (2012)
-
-## License
-
-See LICENSE file for details.
-
-## Contact
-
-For questions or contributions, please contact the development team.
-
-## Future Enhancements
-
-- [ ] Deep learning model integration
-- [ ] Feature importance analysis (SHAP/LIME)
-- [ ] Hyperparameter optimization
-- [ ] Cross-validation strategies
-- [ ] Real clinical data integration
-- [ ] Model explainability
-- [ ] Production API deployment
-
----
-
-**Last Updated**: May 2024
-**Version**: 1.0
+- Chen, T. and Guestrin, C. (2016). XGBoost.
+- Ke, G. et al. (2017). LightGBM.
+- Zhou, Z.-H. (2012). Ensemble Methods.
