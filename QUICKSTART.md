@@ -8,7 +8,7 @@ python -m pip install -r requirements.txt
 Or with conda:
 ```bash
 conda env create -f environment.yml
-conda activate prostate-cancer-ensemble
+conda activate prostate-cancer
 ```
 
 ## 2. Run Training Pipeline

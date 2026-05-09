@@ -1,9 +1,0 @@
-epochs: 50
-batch_size: 32
-validation_split: 0.1
-early_stopping: True
-early_stopping_patience: 5
-learning_rate: 0.001
-optimizer: "adam"
-loss: "binary_crossentropy"
-metrics: ["accuracy", "auc"]

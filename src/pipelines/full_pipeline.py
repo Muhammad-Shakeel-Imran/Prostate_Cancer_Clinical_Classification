@@ -12,6 +12,7 @@ from src.explainability.feature_importance import (
     compute_permutation_importance_summary,
     extract_native_feature_importance,
 )
+from src.explainability.shap_analysis import compute_shap_summary
 from src.explainability.uncertainty_estimation import build_uncertainty_frame
 from src.features.feature_selection import rank_features_by_mutual_info
 from src.features.statistical_features import standardized_mean_differences, summarize_numeric_features
@@ -71,6 +72,13 @@ def main():
             save_dataframe(
                 compute_permutation_importance_summary(model, X_test, y_test),
                 tables_dir / f"{model_name}_permutation_importance.csv",
+            )
+        except Exception:
+            pass
+        try:
+            save_dataframe(
+                compute_shap_summary(model, X_test),
+                tables_dir / f"{model_name}_shap_summary.csv",
             )
         except Exception:
             pass

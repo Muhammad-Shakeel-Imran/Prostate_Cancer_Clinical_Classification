@@ -18,7 +18,7 @@ Implemented strengths of the current codebase include:
 - class-weight-aware learners for more robust handling of class imbalance
 - domain-inspired biomedical feature engineering
 - soft voting and stacked generalization for predictive robustness
-- optional SHAP and LIME-style explainability with safe fallbacks
+- optional SHAP-based explainability with safe fallbacks
 - uncertainty analysis and clinical narrative generation for high-risk cases
 
 ## Clinical Framing
@@ -86,7 +86,7 @@ Beyond model training, the repository includes:
 - stratified 5-fold cross-validation for comparative benchmarking
 - held-out evaluation with ROC, precision-recall, calibration, and confusion-matrix outputs
 - native and permutation feature importance summaries
-- optional SHAP-based global explanations and LIME-inspired local explanations
+- optional SHAP-based global explanations with safe fallbacks
 - uncertainty estimation through predictive entropy, confidence margin, and ensemble disagreement
 - clinical-style narratives highlighting intuitive risk flags such as elevated PSA or older age
 
@@ -140,8 +140,7 @@ This is a useful research finding in itself: for this dataset, a strong linear b
 ├── configs/                    # Model, path, and training configuration
 ├── data/
 │   ├── raw/                    # Input data (Excel dataset)
-│   ├── processed/              # Saved processed feature snapshot
-│   └── interim/                # Optional intermediate artifacts
+│   └── processed/              # Saved processed feature snapshot
 ├── models/
 │   ├── trained_models/         # Saved base learners
 │   └── ensemble_models/        # Saved voting and stacking ensembles
@@ -180,10 +179,10 @@ python -m pip install -r requirements.txt
 
 ### Optional Explainability Dependencies
 
-To enable SHAP and LIME-based explanation workflows:
+To enable SHAP-based explanation workflows:
 
 ```bash
-python -m pip install shap lime
+python -m pip install shap
 ```
 
 ### Install with conda

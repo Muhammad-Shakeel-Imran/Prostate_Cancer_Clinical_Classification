@@ -1,21 +1,16 @@
 data:
   raw_data: "data/raw/Prostate_Cancer.xlsx"
   processed_data: "data/processed/prostate_cancer_processed.csv"
-  interim_data: "data/interim/"
 
 models:
   base_models: "models/trained_models"
   ensemble_models: "models/ensemble_models"
-  checkpoints: "models/checkpoints"
 
 reports:
   figures: "results/figures"
   tables: "results/tables"
   predictions: "results/predictions"
   results: "results"
-
-experiments:
-  tracking: "experiments/experiment_tracking.csv"
 
 artifacts:
   training_summary: "results/training_summary.json"

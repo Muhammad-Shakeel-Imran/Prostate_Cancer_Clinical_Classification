@@ -59,7 +59,6 @@ Several base learners also use `class_weight="balanced"` to improve robustness u
 The repository extends beyond raw prediction accuracy by providing:
 - native and permutation feature importance tables
 - optional SHAP summaries with safe fallbacks when SHAP is not installed
-- optional LIME-style local explanations with safe fallbacks
 - uncertainty signals based on predictive entropy, confidence margin, and ensemble disagreement
 - clinical-style interpretation narratives for high-risk predictions
 

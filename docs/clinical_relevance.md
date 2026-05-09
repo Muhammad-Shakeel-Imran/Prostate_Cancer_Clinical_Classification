@@ -18,7 +18,7 @@ This mix of variables allows the benchmark to reflect both routine clinical indi
 In healthcare analytics, performance alone is not enough. Clinicians and researchers often need to understand why a model assigns elevated risk. For that reason, this repository includes:
 - interpretable baselines such as Logistic Regression
 - feature importance summaries
-- optional SHAP and LIME-style explainability
+- optional SHAP-based explainability
 - clinical-style summaries that translate predictions into intuitive risk flags
 
 These additions make the project more useful for presentations, case discussions, and model review.

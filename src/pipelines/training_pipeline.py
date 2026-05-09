@@ -49,7 +49,6 @@ def _ensure_output_directories(paths_config):
     directories = [
         paths_config["models"]["base_models"],
         paths_config["models"]["ensemble_models"],
-        paths_config["models"]["checkpoints"],
         paths_config["reports"]["figures"],
         paths_config["reports"]["tables"],
         paths_config["reports"]["predictions"],
