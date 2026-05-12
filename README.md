@@ -112,6 +112,10 @@ The following held-out test results were produced by the current pipeline on the
 
 This is a useful research finding in itself: for this dataset, a strong linear baseline remains hard to beat, and not every ensemble strategy improves ranking performance.
 
+### Conclusion
+
+For this benchmark, the most interpretable model, Logistic Regression, delivered the best held-out ROC-AUC and the strongest overall test-set performance. In practical terms, this means the simpler linear baseline outperformed the more complex non-linear models and slightly edged the combined ensemble methods, suggesting that added model complexity did not translate into better generalization on this dataset.
+
 ## Cross-Validation Summary
 
 5-fold cross-validation on the training split produced the following mean metrics:
