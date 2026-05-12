@@ -36,7 +36,6 @@ setup(
         "openpyxl>=3.1.5,<4",
     ],
     extras_require={
-        "lightgbm": ["lightgbm>=4.6,<5"],
         "viz": ["seaborn>=0.13.2,<0.14"],
         "explainability": [
             "shap>=0.46,<1",

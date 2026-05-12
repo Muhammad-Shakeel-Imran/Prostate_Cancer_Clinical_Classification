@@ -8,6 +8,5 @@ joblib>=1.4,<2
 openpyxl>=3.1.5,<4
 
 # Optional extras:
-# lightgbm>=4.6,<5
 # seaborn>=0.13.2,<0.14
 # shap>=0.46,<1

@@ -34,7 +34,6 @@ The benchmark includes several complementary learning strategies:
 - XGBoost for complex feature interactions
 - SVM with an RBF kernel for an alternative margin-based decision boundary
 - KNN for local neighborhood-based diversity
-- optional LightGBM support through configuration
 
 ## Ensemble Strategy
 
@@ -72,3 +71,7 @@ The implemented codebase already supports the core ensemble training, evaluation
 - a Streamlit front end for interactive clinical risk scoring
 
 Those extensions are best described as next-step enhancements unless and until they are added directly to the default pipeline.
+
+## References
+
+For the primary papers and books that ground the modeling, evaluation, and interpretability choices described here, see [References](references.md).

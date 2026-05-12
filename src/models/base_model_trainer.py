@@ -22,11 +22,6 @@ try:
 except ImportError:  # pragma: no cover - depends on optional runtime package
     XGBClassifier = None
 
-try:
-    from lightgbm import LGBMClassifier
-except ImportError:  # pragma: no cover - depends on optional runtime package
-    LGBMClassifier = None
-
 logger = logging.getLogger(__name__)
 
 
@@ -62,12 +57,6 @@ class BaseModelTrainer:
                 raise ImportError("xgboost is not installed. Install it to enable this model.")
             params.setdefault("random_state", self.random_state)
             return XGBClassifier(**params)
-
-        if model_name == "lightgbm":
-            if LGBMClassifier is None:
-                raise ImportError("lightgbm is not installed. Install it to enable this model.")
-            params.setdefault("random_state", self.random_state)
-            return LGBMClassifier(**params)
 
         if model_name == "svm":
             params.setdefault("random_state", self.random_state)
